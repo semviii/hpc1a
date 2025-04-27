@@ -1,3 +1,7 @@
+//------------------------
+   g++ -fopenmp HPC1A.cpp -o f
+   ./f
+------------------------------//
 #include<iostream>
 #include<stdlib.h>
 #include<omp.h>
