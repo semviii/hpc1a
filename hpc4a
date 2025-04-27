@@ -71,3 +71,7 @@ int main() {
 
     return 0;
 }
+
+
+!nvcc -arch=sm_75 vector_add.cu -o vector_add
+!./vector_add
