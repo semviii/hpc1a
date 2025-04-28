@@ -8,3 +8,85 @@ import tensorflow as tf
 from tensorflow.keras import layers, models
 
 
+print(raw_df.head())
+
+
+
+
+# Process the data to get features and target
+raw_data = raw_df.values
+X = np.array(raw_data[::2, :])  # Every second row for the features (even index)
+y = np.array(raw_data[1::2, 2])  # Every second row for the target (odd index)
+
+# Create a DataFrame for the features
+df = pd.DataFrame(X)
+
+# Add the target variable (PRICE) as a new column in the DataFrame
+df['PRICE'] = y
+
+# Display the first few rows of the DataFrame
+print(df.head())
+
+
+# Features (X) and Target (y)
+X = df.drop('PRICE', axis=1)
+y = df['PRICE']
+# Split the data into training and testing sets
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2,
+random_state=42)
+# Standardize the data (important for neural networks)
+scaler = StandardScaler()
+X_train = scaler.fit_transform(X_train)
+X_test = scaler.transform(X_test)
+
+
+# Create a Sequential model
+model = models.Sequential()
+# Input layer and hidden layers
+model.add(layers.Dense(64, input_dim=X_train.shape[1], activation='relu')) #First hidden layer
+model.add(layers.Dense(32, activation='relu')) # Second hidden layer
+# Output layer (single neuron for predicting the house price)
+model.add(layers.Dense(1))
+# Compile the model
+model.compile(optimizer='adam', loss='mean_squared_error')
+
+
+
+
+# Train the model
+history = model.fit(X_train, y_train, epochs=100, batch_size=32,
+validation_split=0.2)import matplotlib.pyplot as plt
+# Plot training & validation loss values
+plt.plot(history.history['loss'])
+plt.plot(history.history['val_loss'])
+plt.title('Model loss')
+plt.xlabel('Epochs')
+plt.ylabel('Loss')
+plt.legend(['Train', 'Validation'], loc='upper right')
+plt.show()
+
+
+# Evaluate the model on the test set
+test_loss = model.evaluate(X_test, y_test)
+print(f'Test Loss: {test_loss}')
+
+
+
+
+# Make predictions
+predictions = model.predict(X_test)
+# Show the first 5 predictions and actual prices
+for i in range(5):
+  print(f"Predicted: {predictions[i]}, Actual: {y_test.iloc[i]}")
+
+
+import matplotlib.pyplot as plt
+# Plot training & validation loss values
+plt.plot(history.history['loss'])
+plt.plot(history.history['val_loss'])
+plt.title('Model loss')
+plt.xlabel('Epochs')
+plt.ylabel('Loss')
+plt.legend(['Train', 'Validation'], loc='upper right')
+plt.show()
+     
