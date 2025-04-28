@@ -1,0 +1,92 @@
+import tensorflow as tf
+from tensorflow.keras import layers, models
+from tensorflow.keras.datasets import fashion_mnist
+import matplotlib.pyplot as plt
+
+
+# Load Fashion MNIST dataset
+(x_train, y_train), (x_test, y_test) = fashion_mnist.load_data()
+
+# Normalize the data: scale pixel values to be between 0 and 1
+x_train, x_test = x_train / 255.0, x_test / 255.0
+
+# Reshape the data to have an additional color channel (grayscale images have 1 channel)
+x_train = x_train.reshape((x_train.shape[0], 28, 28, 1))
+x_test = x_test.reshape((x_test.shape[0], 28, 28, 1))
+
+# Display the shape of the dataset
+print(f"Training data shape: {x_train.shape}, Test data shape: {x_test.shape}")
+
+
+
+
+# Create the CNN model
+model = models.Sequential()
+
+# Add the first convolutional layer followed by a pooling layer
+model.add(layers.Conv2D(32, (3, 3), activation='relu', input_shape=(28, 28, 1)))
+model.add(layers.MaxPooling2D((2, 2)))
+
+# Add a second convolutional layer followed by a pooling layer
+model.add(layers.Conv2D(64, (3, 3), activation='relu'))
+model.add(layers.MaxPooling2D((2, 2)))
+
+# Add a third convolutional layer followed by a pooling layer
+model.add(layers.Conv2D(64, (3, 3), activation='relu'))
+
+# Flatten the output from the convolutional layers
+model.add(layers.Flatten())
+
+# Add a fully connected (dense) layer
+model.add(layers.Dense(64, activation='relu'))
+
+# Output layer with softmax activation for multi-class classification
+model.add(layers.Dense(10, activation='softmax'))
+
+# Compile the model
+model.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics=['accuracy'])
+
+
+#Train the model
+history = model.fit(x_train, y_train, epochs=5, batch_size=64, validation_data=(x_test, y_test))
+
+
+test_loss, test_accuracy = model.evaluate(x_test, y_test)
+print(f"Test Loss: {test_loss}, Test Accuracy: {test_accuracy}")
+
+
+
+
+# Plot training & validation accuracy
+plt.plot(history.history['accuracy'], label='Train Accuracy')
+plt.plot(history.history['val_accuracy'], label='Validation Accuracy')
+plt.title('Model Accuracy')
+plt.xlabel('Epochs')
+plt.ylabel('Accuracy')
+plt.legend()
+plt.show()
+
+
+
+     
+# Plot training & validation loss
+plt.plot(history.history['loss'], label='Train Loss')
+plt.plot(history.history['val_loss'], label='Validation Loss')
+plt.title('Model Loss')
+plt.xlabel('Epochs')
+plt.ylabel('Loss')
+plt.legend()
+plt.show()
+
+
+
+
+import numpy as np
+
+# Predict the class of the first test image
+sample_image = x_test[0].reshape(1, 28, 28, 1) # Reshape the sample image to match the input shape
+predicted_class = np.argmax(model.predict(sample_image))
+
+print(f"Predicted class: {predicted_class}")
+     
+     
